@@ -1,0 +1,25 @@
+go.property("object_id", hash(""))
+go.property("continuous_mode", true)
+
+local transform_interpolation = require("test2.transform_interpolation")
+
+function init(self)
+	transform_interpolation.init(self)
+
+	self.offset = go.get_position()
+end
+
+function update(self, dt)
+	transform_interpolation.interpolate(self, dt)
+
+	if self.position then
+		go.set_position(self.position + self.offset)
+	end
+	if self.rotation then
+		go.set_rotation(self.rotation)
+	end
+end
+
+function fixed_update(self, dt)
+	transform_interpolation.start_frame(self, dt)
+end

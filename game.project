@@ -1,0 +1,42 @@
+[bootstrap]
+main_collection = /test2/bootstrap.collectionc
+render = /custom_render/custom.renderc
+
+[script]
+shared_state = 1
+
+[display]
+width = 640
+height = 960
+high_dpi = 1
+vsync = 1
+
+[android]
+input_method = HiddenInputField
+
+[project]
+title = issue_defold_131_physics_test2
+
+[input]
+game_binding = /builtins/input/all.input_bindingc
+
+[physics]
+scale = 0.01
+gravity_y = -480.0
+use_fixed_timestep = 1
+type = 3D
+
+[html5]
+cssfile = /builtins/manifests/web/dark_theme.css
+heap_size = 64
+scale_mode = fit
+
+[render]
+clear_color_alpha = 1.0
+clear_color_red = 0.25
+clear_color_green = 0.25
+clear_color_blue = 0.25
+
+[engine]
+fixed_update_frequency = 60
+

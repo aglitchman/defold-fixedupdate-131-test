@@ -1,0 +1,54 @@
+local debug_data = require("test2.debug")
+
+local function start_all(self)
+	msg.post(self.go1[hash("/go")], "start", { offset = vmath.vector3(160, 480, 0) })
+	msg.post("test:/go", "start", { offset = vmath.vector3(320, 480, 0) })
+end
+
+local function load_all(self)
+	self.go1 = collectionfactory.create("/go1#collectionfactory", go.get_position("/go1"))
+	msg.post("/go2#proxy_control", "load_proxy")
+end
+
+local function unload_all(self)
+	go.delete(self.go1)
+	msg.post("/go2#proxy_control", "unload_proxy")
+end
+
+function init(self)
+	msg.post("@render:", "use_fixed_fit_projection")
+	msg.post(".", "acquire_input_focus")
+
+	load_all(self)
+end
+
+function final(self)
+end
+
+function update(self, dt)
+end
+
+function fixed_update(self, dt)
+	debug_data.fixed_dt_sum = debug_data.fixed_dt_sum + dt
+	debug_data.fixed_updates = debug_data.fixed_updates + 1
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("proxy_is_on") then
+		-- This message is from proxy_control.script
+		-- Start all animations!
+		start_all(self)
+	elseif message_id == hash("proxy_is_off") then
+		-- So, let's load all again!
+		load_all(self)
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("key_r") and action.pressed then
+		unload_all(self)
+	end
+end
+
+function on_reload(self)
+end

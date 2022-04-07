@@ -1,0 +1,103 @@
+go.property("proxy_url", msg.url("#collectionproxy"))
+go.property("auto_load", true)
+go.property("async_load", true)
+go.property("enable_on_load", true)
+go.property("acquire_input_focus", true)
+go.property("set_time_step", false)
+go.property("time_step_factor", 1) -- time-step scaling factor
+go.property("time_step_mode", 0) -- time-step mode: 0 for continuous and 1 for discrete
+
+local function load(self, sender)
+    if self.loaded then
+        print("level_proxy.script: proxy is already loaded.")
+        return
+    end
+
+    self.sender = sender
+
+    msg.post(self.proxy_url, self.async_load and hash("async_load") or hash("load"))
+end
+
+local function unload(self, sender)
+    if not self.loaded then
+        print("level_proxy.script: proxy is not loaded.")
+        return
+    end
+
+    self.sender = sender
+
+    print("unload proxy")
+    msg.post(self.proxy_url, hash("unload"))
+end
+
+local function reload(self, sender)
+    self.sender = sender
+    self.reload = true
+    unload(self)
+end
+
+local function proxy_loaded(self)
+    print("proxy loaded")
+    self.loaded = true
+
+    if self.enable_on_load then
+        print("enable proxy")
+        msg.post(self.proxy_url, hash("enable"))
+    end
+
+    if self.set_time_step then
+        -- https://defold.com/ref/collectionproxy/#set_time_step
+        print("proxy set_time_step, factor =", self.time_step_factor, "mode =", self.time_step_mode)
+        msg.post(self.proxy_url, hash("set_time_step"), { factor = self.time_step_factor, mode = self.time_step_mode })
+    end
+
+    if self.acquire_input_focus then
+        msg.post(self.proxy_url, hash("acquire_input_focus"))
+    end
+
+    if self.sender then
+        msg.post(self.sender, "proxy_is_on")
+        self.sender = nil
+    end
+end
+
+local function proxy_unloaded(self)
+    print("proxy unloaded")
+    self.loaded = false
+
+    if self.sender then
+        msg.post(self.sender, "proxy_is_off")
+        self.sender = nil
+    end
+
+    if self.reload then
+        load(self)
+    end
+end
+
+function init(self)
+    if self.auto_load then
+        load(self)
+    end
+end
+
+function final(self)
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("proxy_loaded") then
+        proxy_loaded(self)
+    elseif message_id == hash("proxy_unloaded") then
+        proxy_unloaded(self)
+    elseif message_id == hash("load_proxy") then
+        load(self, sender)
+    elseif message_id == hash("unload_proxy") then
+        unload(self, sender)
+    elseif message_id == hash("reload_proxy") then
+        reload(self, sender)
+    -- elseif message_id == hash("pause_proxy") then
+    --     -- pause(self)
+    -- elseif message_id == hash("unpause_proxy") then
+    --     -- unpause(self)
+    end
+end
