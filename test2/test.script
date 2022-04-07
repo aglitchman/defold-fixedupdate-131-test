@@ -4,6 +4,7 @@ go.property("to_y", -640)
 go.property("offset", vmath.vector3())
 
 function init(self)
+	-- Let the starting position be somewhere on the screen
 	self.y = self.from_y / 2
 
 	self.enabled = false
@@ -20,6 +21,7 @@ function fixed_update(self, dt)
 		return
 	end
 
+	-- Infinite fall from the top to the bottom
 	local diff = self.to_y - self.from_y
 	self.y = self.y + diff * dt * 0.3
 	if self.y < self.to_y then

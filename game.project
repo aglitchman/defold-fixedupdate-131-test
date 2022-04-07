@@ -15,7 +15,7 @@ vsync = 1
 input_method = HiddenInputField
 
 [project]
-title = issue_defold_131_physics_test2
+title = issue_defold_131_fixedupdate_test
 
 [input]
 game_binding = /builtins/input/all.input_bindingc
